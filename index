@@ -1,0 +1,1198 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+  Plane,
+  Train,
+  Bus,
+  Compass,
+  Search,
+  ShoppingCart,
+  User,
+  Calendar,
+  MapPin,
+  Clock,
+  Sparkles,
+  CheckCircle2,
+  Tag,
+  Shield,
+  Star,
+  ChevronDown,
+  ChevronUp,
+  X,
+  CreditCard,
+  QrCode,
+  MessageSquare,
+  Send,
+  Percent,
+  Check,
+  AlertCircle,
+  Filter,
+  ArrowRight,
+  Luggage,
+  Coffee,
+  Wifi,
+  Tv,
+  Trash2,
+  Share2,
+  Zap,
+  Info
+} from 'lucide-react';
+
+const MOCK_FLIGHTS = [
+  {
+    id: 'fl-101',
+    type: 'flight',
+    airline: 'SkyFly Budget',
+    code: 'SF-402',
+    from: 'New York (JFK)',
+    to: 'Miami (MIA)',
+    departure: '08:30 AM',
+    arrival: '11:45 AM',
+    duration: '3h 15m',
+    price: 14.99,
+    originalPrice: 120.00,
+    seatsLeft: 4,
+    rating: 4.8,
+    badge: 'FLASH 88% OFF',
+    amenities: ['Wifi', 'Snacks', 'USB Charging']
+  },
+  {
+    id: 'fl-102',
+    type: 'flight',
+    airline: 'AeroLite Express',
+    code: 'AL-882',
+    from: 'London (LHR)',
+    to: 'Paris (CDG)',
+    departure: '02:15 PM',
+    arrival: '04:30 PM',
+    duration: '1h 15m',
+    price: 12.49,
+    originalPrice: 95.00,
+    seatsLeft: 2,
+    rating: 4.7,
+    badge: 'HOT DEAL',
+    amenities: ['Carry-on Included', 'Recliner']
+  },
+  {
+    id: 'fl-103',
+    type: 'flight',
+    airline: 'JetPenny Air',
+    code: 'JP-119',
+    from: 'Los Angeles (LAX)',
+    to: 'Las Vegas (LAS)',
+    departure: '07:00 PM',
+    arrival: '08:15 PM',
+    duration: '1h 15m',
+    price: 9.99,
+    originalPrice: 75.00,
+    seatsLeft: 8,
+    rating: 4.9,
+    badge: 'STEAL DEAL',
+    amenities: ['In-flight Entertainment', 'Snacks']
+  }
+];
+
+const MOCK_TRAINS = [
+  {
+    id: 'tr-201',
+    type: 'train',
+    operator: 'BulletRail Economy',
+    code: 'BR-701',
+    from: 'Chicago (CHI)',
+    to: 'Detroit (DET)',
+    departure: '06:00 AM',
+    arrival: '10:30 AM',
+    duration: '4h 30m',
+    price: 2.49,
+    originalPrice: 45.00,
+    seatsLeft: 12,
+    rating: 4.6,
+    badge: '94% DISCOUNT',
+    amenities: ['Power Outlet', 'Quiet Car', 'Pantry']
+  },
+  {
+    id: 'tr-202',
+    type: 'train',
+    operator: 'EuroSwift Night',
+    code: 'ES-990',
+    from: 'Berlin (BER)',
+    to: 'Prague (PRG)',
+    departure: '11:00 PM',
+    arrival: '03:45 AM',
+    duration: '4h 45m',
+    price: 3.99,
+    originalPrice: 55.00,
+    seatsLeft: 6,
+    rating: 4.8,
+    badge: 'SLEEPER BARGAIN',
+    amenities: ['Sleeper Berth', 'Reading Light']
+  }
+];
+
+const MOCK_BUSES = [
+  {
+    id: 'bs-301',
+    type: 'bus',
+    operator: 'MegaBudget Express',
+    code: 'MB-10',
+    from: 'Boston (BOS)',
+    to: 'New York (NYC)',
+    departure: '09:00 AM',
+    arrival: '01:30 PM',
+    duration: '4h 30m',
+    price: 0.99,
+    originalPrice: 28.00,
+    seatsLeft: 15,
+    rating: 4.5,
+    badge: '$0.99 SPECIAL',
+    amenities: ['AC', 'Free Wifi', 'Reclining Seats']
+  },
+  {
+    id: 'bs-302',
+    type: 'bus',
+    operator: 'CityHop Cruiser',
+    code: 'CH-44',
+    from: 'San Francisco (SFO)',
+    to: 'Los Angeles (LAX)',
+    departure: '10:00 PM',
+    arrival: '05:30 AM',
+    duration: '7h 30m',
+    price: 1.99,
+    originalPrice: 35.00,
+    seatsLeft: 9,
+    rating: 4.4,
+    badge: 'OVERNIGHT DEAL',
+    amenities: ['Luxury Sleeper', 'Water Bottle', 'Charging Port']
+  }
+];
+
+const MOCK_PACKAGES = [
+  {
+    id: 'pkg-501',
+    type: 'package',
+    title: '7-Day Bali Tropical Escape & Island Hopping',
+    destination: 'Bali, Indonesia',
+    duration: '7 Days / 6 Nights',
+    price: 199.99,
+    originalPrice: 899.00,
+    rating: 4.9,
+    reviewsCount: 342,
+    badge: '78% OFF VACATION',
+    image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80',
+    inclusions: ['4-Star Villa Stay', 'Daily Breakfast', 'Airport Transfers', 'Guided Nusa Penida Tour'],
+    itinerary: [
+      { day: 1, title: 'Arrival & Beach Sunset Dinner in Jimbaran' },
+      { day: 2, title: 'Ubud Monkey Forest & Rice Terrace Swing' },
+      { day: 3, title: 'Full Day Nusa Penida Speedboat Island Tour' },
+      { day: 4, title: 'Mount Batur Sunrise Trekking & Hot Springs' },
+      { day: 5, title: 'Water Sports at Tanjung Benoa & Tanah Lot Temple' },
+      { day: 6, title: 'Spa & Wellness Day at Seminyak Resort' },
+      { day: 7, title: 'Souvenir Shopping & Flight Departure' }
+    ]
+  },
+  {
+    id: 'pkg-502',
+    type: 'package',
+    title: '5-Day Swiss Alps & Scenic Train Odyssey',
+    destination: 'Zurich & Lucerne, Switzerland',
+    duration: '5 Days / 4 Nights',
+    price: 249.99,
+    originalPrice: 1100.00,
+    rating: 4.9,
+    reviewsCount: 218,
+    badge: 'ALL-INCLUSIVE BUDGET',
+    image: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&w=800&q=80',
+    inclusions: ['Boutique Hotel', 'Swiss Rail Pass Included', 'Mount Titlis Cable Car', 'Lake Cruise'],
+    itinerary: [
+      { day: 1, title: 'Arrival in Zurich & Old Town Walking Tour' },
+      { day: 2, title: 'Scenic Train to Lucerne & Lake Lucerne Cruise' },
+      { day: 3, title: 'Mount Titlis Snow Mountain & Glacier Cave' },
+      { day: 4, title: 'Interlaken Gateway & Lauterbrunnen Waterfalls' },
+      { day: 5, title: 'Swiss Chocolate Tasting & Departure' }
+    ]
+  },
+  {
+    id: 'pkg-503',
+    type: 'package',
+    title: '4-Day European Triple Gateway: Paris, Brussels & Amsterdam',
+    destination: 'France, Belgium, Netherlands',
+    duration: '4 Days / 3 Nights',
+    price: 149.99,
+    originalPrice: 650.00,
+    rating: 4.8,
+    reviewsCount: 512,
+    badge: 'TRIPLE CITY DEAL',
+    image: 'https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?auto=format&fit=crop&w=800&q=80',
+    inclusions: ['Intercity High-Speed Express', 'Hostel/Hotel Stay', 'Canal Cruise Ticket', 'Walking Tours'],
+    itinerary: [
+      { day: 1, title: 'Eiffel Tower & Seine River Evening Cruise in Paris' },
+      { day: 2, title: 'Express Train to Brussels & Waffle/Chocolate Trail' },
+      { day: 3, title: 'Amsterdam Canal Tour & Red Light History Excursion' },
+      { day: 4, title: 'Zaanse Schans Windmills & Farewell' }
+    ]
+  }
+];
+
+export default function App() {
+  // State management
+  const [activeTab, setActiveTab] = useState('flights'); // flights, trains, buses, packages
+  const [cart, setCart] = useState([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [selectedSeatItem, setSelectedSeatItem] = useState(null); // Item being configured in seat modal
+  const [selectedSeats, setSelectedSeats] = useState([]);
+  const [packageModalItem, setPackageModalItem] = useState(null);
+  const [confirmedBooking, setConfirmedBooking] = useState(null);
+  
+  // Search parameters
+  const [searchFrom, setSearchFrom] = useState('');
+  const [searchTo, setSearchTo] = useState('');
+  const [travelDate, setTravelDate] = useState('');
+  
+  // Coupon and insurance
+  const [couponInput, setCouponInput] = useState('');
+  const [appliedDiscount, setAppliedDiscount] = useState(0);
+  const [includeInsurance, setIncludeInsurance] = useState(false);
+
+  // Live Support Chat State
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatMessages, setChatMessages] = useState([
+    { sender: 'bot', text: 'Hello! Welcome to OmniTravel. Looking for super cheap $0.99 tickets or vacation deals?' }
+  ]);
+  const [chatInput, setChatInput] = useState('');
+
+  // Flash Sale Countdown State
+  const [timeLeft, setTimeLeft] = useState({ hours: 4, minutes: 28, seconds: 45 });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
+        if (prev.minutes > 0) return { ...prev, minutes: 59, seconds: 59 };
+        if (prev.hours > 0) return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
+        return { hours: 4, minutes: 0, seconds: 0 };
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const filteredFlights = useMemo(() => {
+    return MOCK_FLIGHTS.filter(item => 
+      (!searchFrom || item.from.toLowerCase().includes(searchFrom.toLowerCase())) &&
+      (!searchTo || item.to.toLowerCase().includes(searchTo.toLowerCase()))
+    );
+  }, [searchFrom, searchTo]);
+
+  const filteredTrains = useMemo(() => {
+    return MOCK_TRAINS.filter(item => 
+      (!searchFrom || item.from.toLowerCase().includes(searchFrom.toLowerCase())) &&
+      (!searchTo || item.to.toLowerCase().includes(searchTo.toLowerCase()))
+    );
+  }, [searchFrom, searchTo]);
+
+  const filteredBuses = useMemo(() => {
+    return MOCK_BUSES.filter(item => 
+      (!searchFrom || item.from.toLowerCase().includes(searchFrom.toLowerCase())) &&
+      (!searchTo || item.to.toLowerCase().includes(searchTo.toLowerCase()))
+    );
+  }, [searchFrom, searchTo]);
+
+  const filteredPackages = useMemo(() => {
+    return MOCK_PACKAGES.filter(item => 
+      (!searchTo || item.destination.toLowerCase().includes(searchTo.toLowerCase()) || item.title.toLowerCase().includes(searchTo.toLowerCase()))
+    );
+  }, [searchTo]);
+
+  const handleOpenSeatSelection = (item) => {
+    setSelectedSeatItem(item);
+    setSelectedSeats([]);
+  };
+
+  const toggleSeatSelection = (seatNo) => {
+    if (selectedSeats.includes(seatNo)) {
+      setSelectedSeats(selectedSeats.filter(s => s !== seatNo));
+    } else {
+      setSelectedSeats([...selectedSeats, seatNo]);
+    }
+  };
+
+  const confirmSeatAndAddToCart = () => {
+    if (selectedSeats.length === 0) return;
+    const newItem = {
+      ...selectedSeatItem,
+      selectedSeats: [...selectedSeats],
+      totalItemPrice: Number((selectedSeatItem.price * selectedSeats.length).toFixed(2)),
+      cartId: `${selectedSeatItem.id}-${Date.now()}`
+    };
+    setCart(prev => [...prev, newItem]);
+    setSelectedSeatItem(null);
+    setSelectedSeats([]);
+    setIsCartOpen(true);
+  };
+
+  const addPackageToCart = (pkg) => {
+    const newItem = {
+      ...pkg,
+      selectedSeats: ['Package Booking (1 Pax)'],
+      totalItemPrice: pkg.price,
+      cartId: `${pkg.id}-${Date.now()}`
+    };
+    setCart(prev => [...prev, newItem]);
+    setPackageModalItem(null);
+    setIsCartOpen(true);
+  };
+
+  const removeFromCart = (cartId) => {
+    setCart(cart.filter(item => item.cartId !== cartId));
+  };
+
+  const handleApplyCoupon = () => {
+    if (couponInput.trim().toUpperCase() === 'SUPERDEAL') {
+      setAppliedDiscount(0.5); // 50% discount off total
+    } else {
+      alert('Invalid Promo Code. Try "SUPERDEAL" for 50% off!');
+    }
+  };
+
+  const calculateSubtotal = () => {
+    return cart.reduce((acc, item) => acc + item.totalItemPrice, 0);
+  };
+
+  const calculateInsuranceCost = () => {
+    return includeInsurance && cart.length > 0 ? 1.99 : 0;
+  };
+
+  const calculateFinalTotal = () => {
+    const subtotal = calculateSubtotal();
+    const discount = subtotal * appliedDiscount;
+    const insurance = calculateInsuranceCost();
+    const total = subtotal - discount + insurance;
+    return Math.max(0, total).toFixed(2);
+  };
+
+  const handleCheckout = () => {
+    if (cart.length === 0) return;
+    const bookingRef = 'OMNI-' + Math.floor(100000 + Math.random() * 900000);
+    const newBooking = {
+      bookingRef,
+      date: new Date().toLocaleDateString(),
+      items: [...cart],
+      totalAmount: calculateFinalTotal(),
+      insuranceAdded: includeInsurance
+    };
+    setConfirmedBooking(newBooking);
+    setCart([]);
+    setIsCartOpen(false);
+  };
+
+  const handleSendMessage = (e) => {
+    e.preventDefault();
+    if (!chatInput.trim()) return;
+    
+    const userMsg = chatInput;
+    setChatMessages(prev => [...prev, { sender: 'user', text: userMsg }]);
+    setChatInput('');
+
+    setTimeout(() => {
+      let botReply = "I'm here to help! You can use coupon 'SUPERDEAL' at checkout for an extra 50% off our already negligible prices!";
+      if (userMsg.toLowerCase().includes('flight')) {
+        botReply = "Our flights start as low as $9.99! Check out JetPenny Air to Las Vegas.";
+      } else if (userMsg.toLowerCase().includes('bus') || userMsg.toLowerCase().includes('train')) {
+        botReply = "MegaBudget Bus tickets start at just $0.99 with full AC and WiFi included!";
+      } else if (userMsg.toLowerCase().includes('cancel') || userMsg.toLowerCase().includes('refund')) {
+        botReply = "All tickets feature instant 100% full digital wallet refunds up to 2 hours before departure!";
+      }
+      setChatMessages(prev => [...prev, { sender: 'bot', text: botReply }]);
+    }, 800);
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-900 text-slate-100 font-sans flex flex-col selection:bg-indigo-500 selection:text-white">
+      
+      {/* Top Discount Bar */}
+      <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-xs font-semibold py-2 px-4 text-center flex items-center justify-center gap-2 shadow-inner">
+        <Zap className="w-4 h-4 animate-bounce text-yellow-300" />
+        <span>FLASH SALE: Negligible Fares From $0.99! Use Promo Code <span className="bg-white/20 px-2 py-0.5 rounded text-yellow-200 tracking-wider">SUPERDEAL</span> for Extra 50% OFF</span>
+        <div className="hidden md:flex items-center gap-1 bg-black/20 px-2 py-0.5 rounded font-mono text-yellow-300 ml-3">
+          <Clock className="w-3 h-3" />
+          <span>{String(timeLeft.hours).padStart(2, '0')}:{String(timeLeft.minutes).padStart(2, '0')}:{String(timeLeft.seconds).padStart(2, '0')}</span>
+        </div>
+      </div>
+
+      {/* Main Header / Navigation */}
+      <header className="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+          
+          {/* Logo */}
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab('flights')}>
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+              <Compass className="w-7 h-7 text-white animate-spin-slow" />
+            </div>
+            <div>
+              <span className="text-2xl font-black tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-indigo-300">
+                Omni<span className="text-indigo-400">Travel</span>
+              </span>
+              <p className="text-[10px] text-slate-400 font-medium -mt-1 tracking-widest uppercase">Negligible Fare Marketplace</p>
+            </div>
+          </div>
+
+          {/* Quick Category Navigation Desktop */}
+          <nav className="hidden md:flex items-center gap-1 bg-slate-800/80 p-1.5 rounded-2xl border border-slate-700/60">
+            <button
+              onClick={() => setActiveTab('flights')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+                activeTab === 'flights' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+              }`}
+            >
+              <Plane className="w-4 h-4" /> Flights
+            </button>
+            <button
+              onClick={() => setActiveTab('trains')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+                activeTab === 'trains' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+              }`}
+            >
+              <Train className="w-4 h-4" /> Trains
+            </button>
+            <button
+              onClick={() => setActiveTab('buses')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+                activeTab === 'buses' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+              }`}
+            >
+              <Bus className="w-4 h-4" /> Buses
+            </button>
+            <button
+              onClick={() => setActiveTab('packages')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+                activeTab === 'packages' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+              }`}
+            >
+              <Sparkles className="w-4 h-4 text-yellow-400" /> Tours & Packages
+            </button>
+          </nav>
+
+          {/* Right Actions: Cart & Profile */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="relative p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 transition-all hover:scale-105 active:scale-95"
+            >
+              <ShoppingCart className="w-5 h-5" />
+              {cart.length > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 bg-gradient-to-r from-pink-500 to-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center animate-pulse">
+                  {cart.length}
+                </span>
+              )}
+            </button>
+
+            <button className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-sm font-medium text-slate-200">
+              <User className="w-4 h-4 text-indigo-400" /> Account
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+        
+        {/* Dynamic Search & Booking Hero Box */}
+        <section className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-slate-800 via-indigo-950/40 to-slate-900 border border-slate-700/70 p-6 md:p-10 shadow-2xl">
+          <div className="absolute -top-24 -right-24 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 max-w-3xl mb-8">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold mb-3">
+              <Tag className="w-3.5 h-3.5" /> Lowest Fare Guarantee
+            </div>
+            <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
+              Travel Anywhere for <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400">Negligible Prices</span>
+            </h1>
+            <p className="mt-3 text-slate-300 text-sm sm:text-base">
+              Book ultra-budget Bus, Train, Flight tickets and curated vacation deals with transparent $0 hidden fees.
+            </p>
+          </div>
+
+          {/* Search Inputs Bar */}
+          <div className="relative z-10 bg-slate-900/90 backdrop-blur-xl border border-slate-700 p-4 sm:p-6 rounded-2xl shadow-xl">
+            {/* Mobile Category Tabs */}
+            <div className="flex md:hidden items-center justify-around border-b border-slate-800 pb-3 mb-4">
+              <button 
+                onClick={() => setActiveTab('flights')} 
+                className={`flex items-center gap-1 text-xs font-semibold pb-1 ${activeTab === 'flights' ? 'text-indigo-400 border-b-2 border-indigo-500' : 'text-slate-400'}`}
+              >
+                <Plane className="w-3.5 h-3.5" /> Flights
+              </button>
+              <button 
+                onClick={() => setActiveTab('trains')} 
+                className={`flex items-center gap-1 text-xs font-semibold pb-1 ${activeTab === 'trains' ? 'text-indigo-400 border-b-2 border-indigo-500' : 'text-slate-400'}`}
+              >
+                <Train className="w-3.5 h-3.5" /> Trains
+              </button>
+              <button 
+                onClick={() => setActiveTab('buses')} 
+                className={`flex items-center gap-1 text-xs font-semibold pb-1 ${activeTab === 'buses' ? 'text-indigo-400 border-b-2 border-indigo-500' : 'text-slate-400'}`}
+              >
+                <Bus className="w-3.5 h-3.5" /> Buses
+              </button>
+              <button 
+                onClick={() => setActiveTab('packages')} 
+                className={`flex items-center gap-1 text-xs font-semibold pb-1 ${activeTab === 'packages' ? 'text-indigo-400 border-b-2 border-indigo-500' : 'text-slate-400'}`}
+              >
+                <Sparkles className="w-3.5 h-3.5 text-yellow-400" /> Tours
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="relative">
+                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">From Departure</label>
+                <div className="relative">
+                  <MapPin className="w-4 h-4 absolute left-3 top-3.5 text-slate-500" />
+                  <input
+                    type="text"
+                    placeholder="City or Airport (e.g. New York)"
+                    value={searchFrom}
+                    onChange={(e) => setSearchFrom(e.target.value)}
+                    className="w-full bg-slate-800/80 border border-slate-700/80 rounded-xl pl-9 pr-3 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
+                  />
+                </div>
+              </div>
+
+              <div className="relative">
+                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">To Destination</label>
+                <div className="relative">
+                  <MapPin className="w-4 h-4 absolute left-3 top-3.5 text-indigo-400" />
+                  <input
+                    type="text"
+                    placeholder="Destination (e.g. Miami, Bali)"
+                    value={searchTo}
+                    onChange={(e) => setSearchTo(e.target.value)}
+                    className="w-full bg-slate-800/80 border border-slate-700/80 rounded-xl pl-9 pr-3 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
+                  />
+                </div>
+              </div>
+
+              <div className="relative">
+                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Travel Date</label>
+                <div className="relative">
+                  <Calendar className="w-4 h-4 absolute left-3 top-3.5 text-slate-500" />
+                  <input
+                    type="date"
+                    value={travelDate}
+                    onChange={(e) => setTravelDate(e.target.value)}
+                    className="w-full bg-slate-800/80 border border-slate-700/80 rounded-xl pl-9 pr-3 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-end">
+                <button
+                  onClick={() => {}}
+                  className="w-full bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold py-2.5 px-4 rounded-xl shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <Search className="w-4 h-4" /> Find Lowest Fares
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+          <div>
+            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              {activeTab === 'flights' && <><Plane className="w-6 h-6 text-indigo-400" /> Available Flight Tickets</>}
+              {activeTab === 'trains' && <><Train className="w-6 h-6 text-emerald-400" /> Bullet & Express Trains</>}
+              {activeTab === 'buses' && <><Bus className="w-6 h-6 text-cyan-400" /> Ultra-Cheap Bus Routes</>}
+              {activeTab === 'packages' && <><Sparkles className="w-6 h-6 text-yellow-400" /> Tour & Vacation Packages</>}
+            </h2>
+            <p className="text-xs text-slate-400 mt-1">
+              Select your travel preferences to pick seats and view fare breakdowns
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 text-xs text-slate-400 bg-slate-800/60 px-3 py-1.5 rounded-lg border border-slate-700/50">
+            <Filter className="w-3.5 h-3.5 text-indigo-400" />
+            <span>Showing {
+              activeTab === 'flights' ? filteredFlights.length :
+              activeTab === 'trains' ? filteredTrains.length :
+              activeTab === 'buses' ? filteredBuses.length : filteredPackages.length
+            } super deals</span>
+          </div>
+        </div>
+
+        {}
+        {activeTab !== 'packages' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {(activeTab === 'flights' ? filteredFlights : activeTab === 'trains' ? filteredTrains : filteredBuses).map(item => (
+              <div 
+                key={item.id} 
+                className="group bg-slate-800/60 hover:bg-slate-800 border border-slate-700/70 hover:border-indigo-500/50 rounded-2xl p-5 transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-indigo-500/10 flex flex-col justify-between relative overflow-hidden"
+              >
+                {/* Badge Tag */}
+                <div className="absolute top-0 right-0 bg-gradient-to-l from-emerald-500 to-teal-600 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl tracking-wider shadow">
+                  {item.badge}
+                </div>
+
+                <div>
+                  {/* Transport Header */}
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-xl bg-slate-700/80 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                      {item.type === 'flight' ? <Plane className="w-5 h-5" /> : item.type === 'train' ? <Train className="w-5 h-5" /> : <Bus className="w-5 h-5" />}
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-white text-base leading-tight">{item.type === 'flight' ? item.airline : item.type === 'train' ? item.operator : item.operator}</h3>
+                      <p className="text-xs text-slate-400 font-mono mt-0.5">{item.code}</p>
+                    </div>
+                  </div>
+
+                  {/* Route Timeline */}
+                  <div className="bg-slate-900/60 rounded-xl p-3 mb-4 border border-slate-800">
+                    <div className="flex items-center justify-between text-sm font-semibold text-white">
+                      <div>
+                        <p className="text-base font-bold">{item.departure}</p>
+                        <p className="text-xs text-slate-400 font-normal">{item.from}</p>
+                      </div>
+                      <div className="flex flex-col items-center px-2">
+                        <span className="text-[10px] text-slate-500 font-mono mb-1">{item.duration}</span>
+                        <div className="w-20 sm:w-24 h-0.5 bg-slate-700 relative flex items-center justify-center">
+                          <div className="w-2 h-2 rounded-full bg-indigo-500 absolute -left-1" />
+                          <ArrowRight className="w-3 h-3 text-indigo-400 absolute" />
+                          <div className="w-2 h-2 rounded-full bg-indigo-500 absolute -right-1" />
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-base font-bold">{item.arrival}</p>
+                        <p className="text-xs text-slate-400 font-normal">{item.to}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Amenities */}
+                  <div className="flex flex-wrap gap-1.5 mb-4">
+                    {item.amenities.map((amenity, idx) => (
+                      <span key={idx} className="bg-slate-700/40 text-slate-300 text-[11px] px-2 py-0.5 rounded-md border border-slate-700/50 flex items-center gap-1">
+                        {idx === 0 ? <Wifi className="w-3 h-3 text-indigo-400" /> : <Coffee className="w-3 h-3 text-emerald-400" />}
+                        {amenity}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Pricing & Seat Trigger */}
+                <div className="pt-3 border-t border-slate-700/50 flex items-center justify-between mt-2">
+                  <div>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-2xl font-black text-emerald-400">${item.price.toFixed(2)}</span>
+                      <span className="text-xs text-slate-500 line-through">${item.originalPrice.toFixed(2)}</span>
+                    </div>
+                    <p className="text-[10px] text-slate-400 mt-0.5">{item.seatsLeft} seats left at this fare</p>
+                  </div>
+
+                  <button
+                    onClick={() => handleOpenSeatSelection(item)}
+                    className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition flex items-center gap-1.5 shadow-md shadow-indigo-600/30"
+                  >
+                    Select Seat & Book <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {}
+        {activeTab === 'packages' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredPackages.map(pkg => (
+              <div 
+                key={pkg.id} 
+                className="bg-slate-800/60 hover:bg-slate-800 border border-slate-700/70 hover:border-yellow-500/50 rounded-2xl overflow-hidden transition-all duration-300 shadow-xl flex flex-col justify-between group"
+              >
+                <div>
+                  {/* Image Container */}
+                  <div className="relative h-48 overflow-hidden">
+                    <img 
+                      src={pkg.image} 
+                      alt={pkg.title} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
+                    <span className="absolute top-3 right-3 bg-yellow-500 text-slate-950 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow">
+                      {pkg.badge}
+                    </span>
+                    <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-slate-900/80 backdrop-blur-md text-yellow-400 text-xs font-bold px-2.5 py-1 rounded-lg">
+                      <Star className="w-3.5 h-3.5 fill-yellow-400" />
+                      <span>{pkg.rating} ({pkg.reviewsCount})</span>
+                    </div>
+                  </div>
+
+                  <div className="p-5">
+                    <div className="flex items-center gap-1 text-slate-400 text-xs font-semibold mb-1">
+                      <MapPin className="w-3.5 h-3.5 text-indigo-400" /> {pkg.destination} • <Clock className="w-3.5 h-3.5 text-emerald-400 ml-1" /> {pkg.duration}
+                    </div>
+                    <h3 className="text-lg font-bold text-white leading-snug mb-3 group-hover:text-yellow-300 transition-colors">
+                      {pkg.title}
+                    </h3>
+
+                    {/* Inclusions list */}
+                    <div className="space-y-1.5 mb-4">
+                      {pkg.inclusions.map((inc, i) => (
+                        <div key={i} className="flex items-center gap-2 text-xs text-slate-300">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                          <span>{inc}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom Bar */}
+                <div className="p-5 pt-0 flex items-center justify-between border-t border-slate-700/50 mt-2">
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase font-semibold">Negligible Package Fare</p>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-black text-yellow-400">${pkg.price.toFixed(2)}</span>
+                      <span className="text-xs text-slate-500 line-through">${pkg.originalPrice.toFixed(2)}</span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setPackageModalItem(pkg)}
+                    className="bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-amber-500 text-slate-950 font-bold text-xs px-4 py-2.5 rounded-xl transition shadow-md shadow-yellow-500/20"
+                  >
+                    View Itinerary
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+      </main>
+
+      {}
+      {selectedSeatItem && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+            <button 
+              onClick={() => setSelectedSeatItem(null)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-full bg-slate-800"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center">
+                {selectedSeatItem.type === 'flight' ? <Plane className="w-5 h-5" /> : selectedSeatItem.type === 'train' ? <Train className="w-5 h-5" /> : <Bus className="w-5 h-5" />}
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white">Select Your Seat</h3>
+                <p className="text-xs text-slate-400">{selectedSeatItem.from} to {selectedSeatItem.to} ({selectedSeatItem.code})</p>
+              </div>
+            </div>
+
+            {/* Seat Map Layout Legend */}
+            <div className="flex items-center justify-center gap-6 my-4 bg-slate-800/60 p-2.5 rounded-xl text-xs">
+              <div className="flex items-center gap-1.5 text-slate-400">
+                <div className="w-4 h-4 rounded bg-slate-700 border border-slate-600" /> Available
+              </div>
+              <div className="flex items-center gap-1.5 text-indigo-300">
+                <div className="w-4 h-4 rounded bg-indigo-600 border border-indigo-400" /> Selected
+              </div>
+              <div className="flex items-center gap-1.5 text-slate-500">
+                <div className="w-4 h-4 rounded bg-slate-800 opacity-40 border border-slate-700" /> Occupied
+              </div>
+            </div>
+
+            {/* Interactive Grid Map */}
+            <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 flex flex-col items-center my-4">
+              <p className="text-[10px] text-slate-500 uppercase tracking-widest font-mono mb-4">Front / Cockpit</p>
+              
+              <div className="grid grid-cols-4 gap-3">
+                {['1A', '1B', '1C', '1D', '2A', '2B', '2C', '2D', '3A', '3B', '3C', '3D', '4A', '4B', '4C', '4D'].map((seatNo, idx) => {
+                  const isOccupied = idx === 2 || idx === 7; // Mock occupied seats
+                  const isSelected = selectedSeats.includes(seatNo);
+
+                  return (
+                    <button
+                      key={seatNo}
+                      disabled={isOccupied}
+                      onClick={() => toggleSeatSelection(seatNo)}
+                      className={`w-11 h-11 rounded-xl text-xs font-bold transition flex items-center justify-center border ${
+                        isOccupied 
+                          ? 'bg-slate-900 border-slate-800 text-slate-600 cursor-not-allowed opacity-40' 
+                          : isSelected 
+                            ? 'bg-indigo-600 border-indigo-400 text-white shadow-lg shadow-indigo-600/50 scale-105' 
+                            : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-indigo-500 hover:bg-slate-700'
+                      }`}
+                    >
+                      {seatNo}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Price Breakdown */}
+            <div className="bg-slate-800/40 rounded-xl p-4 border border-slate-700/50 space-y-2 text-xs">
+              <div className="flex justify-between text-slate-400">
+                <span>Selected Seats:</span>
+                <span className="text-white font-mono">{selectedSeats.length > 0 ? selectedSeats.join(', ') : 'None selected'}</span>
+              </div>
+              <div className="flex justify-between text-slate-400">
+                <span>Fare per seat:</span>
+                <span className="text-emerald-400 font-mono">${selectedSeatItem.price.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between font-bold text-sm text-white pt-2 border-t border-slate-700">
+                <span>Total Base Fare:</span>
+                <span className="text-emerald-400 font-mono">${(selectedSeatItem.price * selectedSeats.length).toFixed(2)}</span>
+              </div>
+            </div>
+
+            <button
+              onClick={confirmSeatAndAddToCart}
+              disabled={selectedSeats.length === 0}
+              className="w-full mt-5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 disabled:opacity-50 text-white font-bold py-3 rounded-xl transition shadow-lg flex items-center justify-center gap-2"
+            >
+              Add {selectedSeats.length} Ticket(s) to Cart
+            </button>
+          </div>
+        </div>
+      )}
+
+      {}
+      {packageModalItem && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 shadow-2xl relative">
+            <button 
+              onClick={() => setPackageModalItem(null)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white p-1.5 rounded-full bg-slate-800"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="relative h-48 rounded-2xl overflow-hidden mb-6">
+              <img src={packageModalItem.image} alt={packageModalItem.title} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+              <div className="absolute bottom-4 left-4 right-4">
+                <span className="bg-yellow-500 text-slate-950 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider mb-2 inline-block">
+                  {packageModalItem.badge}
+                </span>
+                <h2 className="text-xl sm:text-2xl font-bold text-white">{packageModalItem.title}</h2>
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-yellow-400" /> Detailed Day-by-Day Itinerary
+              </h4>
+              <div className="space-y-3">
+                {packageModalItem.itinerary.map((item) => (
+                  <div key={item.day} className="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60 flex items-start gap-3">
+                    <span className="bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 text-xs font-bold px-2 py-1 rounded-lg whitespace-nowrap">
+                      Day {item.day}
+                    </span>
+                    <p className="text-xs text-slate-200 mt-0.5 font-medium">{item.title}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-4 border-t border-slate-800">
+              <div>
+                <p className="text-xs text-slate-400">Package All-Inclusive Price</p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-black text-yellow-400">${packageModalItem.price.toFixed(2)}</span>
+                  <span className="text-sm text-slate-500 line-through">${packageModalItem.originalPrice.toFixed(2)}</span>
+                </div>
+              </div>
+
+              <button
+                onClick={() => addPackageToCart(packageModalItem)}
+                className="bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-extrabold px-6 py-3 rounded-xl transition shadow-lg shadow-yellow-500/20 flex items-center gap-2 text-sm"
+              >
+                <ShoppingCart className="w-4 h-4" /> Book Package Now
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {}
+      {isCartOpen && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex justify-end">
+          <div className="bg-slate-900 border-l border-slate-800 w-full max-w-md h-full flex flex-col justify-between p-6 shadow-2xl relative animate-in slide-in-from-right duration-300">
+            
+            {/* Cart Header */}
+            <div>
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+                <div className="flex items-center gap-2">
+                  <ShoppingCart className="w-5 h-5 text-indigo-400" />
+                  <h3 className="text-lg font-bold text-white">Your Travel Cart</h3>
+                  <span className="bg-slate-800 text-xs text-slate-300 font-bold px-2 py-0.5 rounded-full">{cart.length}</span>
+                </div>
+                <button onClick={() => setIsCartOpen(false)} className="text-slate-400 hover:text-white p-1 rounded-lg">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Items List */}
+              <div className="mt-4 space-y-3 max-h-[50vh] overflow-y-auto pr-1">
+                {cart.length === 0 ? (
+                  <div className="text-center py-12 text-slate-500">
+                    <Luggage className="w-12 h-12 mx-auto mb-2 opacity-30" />
+                    <p className="text-sm font-medium">Your travel basket is empty.</p>
+                    <p className="text-xs text-slate-600 mt-1">Add cheap tickets or tour packages to proceed!</p>
+                  </div>
+                ) : (
+                  cart.map(item => (
+                    <div key={item.cartId} className="bg-slate-800/80 rounded-xl p-3 border border-slate-700/60 flex items-center justify-between">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-indigo-300">
+                            {item.type === 'flight' ? item.airline : item.type === 'package' ? item.title : item.operator}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-400">
+                          {item.type === 'package' ? item.destination : `${item.from} → ${item.to}`}
+                        </p>
+                        <p className="text-[11px] text-slate-500 font-mono">
+                          Seats/Pax: {item.selectedSeats.join(', ')}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-bold text-emerald-400">${item.totalItemPrice.toFixed(2)}</span>
+                        <button onClick={() => removeFromCart(item.cartId)} className="text-slate-500 hover:text-red-400 transition">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Cart Footer & Checkout Controls */}
+            {cart.length > 0 && (
+              <div className="pt-4 border-t border-slate-800 space-y-4">
+                
+                {/* Insurance Add-on Toggle */}
+                <div className="bg-slate-800/40 border border-slate-700/50 p-3 rounded-xl flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <Shield className="w-4 h-4 text-emerald-400" />
+                    <div>
+                      <p className="text-xs font-semibold text-white">Full Trip Insurance</p>
+                      <p className="text-[10px] text-slate-400">Cover delay & medical protection</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setIncludeInsurance(!includeInsurance)}
+                    className={`text-xs px-3 py-1 rounded-lg font-bold transition ${includeInsurance ? 'bg-emerald-600 text-white' : 'bg-slate-700 text-slate-300'}`}
+                  >
+                    +$1.99
+                  </button>
+                </div>
+
+                {/* Promo Code Input */}
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Promo Code (e.g. SUPERDEAL)"
+                    value={couponInput}
+                    onChange={(e) => setCouponInput(e.target.value)}
+                    className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white uppercase focus:outline-none focus:border-indigo-500"
+                  />
+                  <button 
+                    onClick={handleApplyCoupon}
+                    className="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-indigo-400 text-xs font-bold px-3 py-2 rounded-xl"
+                  >
+                    Apply
+                  </button>
+                </div>
+
+                {/* Subtotal Calculation */}
+                <div className="space-y-1.5 text-xs text-slate-400">
+                  <div className="flex justify-between">
+                    <span>Subtotal:</span>
+                    <span>${calculateSubtotal().toFixed(2)}</span>
+                  </div>
+                  {appliedDiscount > 0 && (
+                    <div className="flex justify-between text-emerald-400 font-semibold">
+                      <span>Promo Discount (50%):</span>
+                      <span>-${(calculateSubtotal() * appliedDiscount).toFixed(2)}</span>
+                    </div>
+                  )}
+                  {includeInsurance && (
+                    <div className="flex justify-between text-emerald-400">
+                      <span>Trip Insurance:</span>
+                      <span>+$1.99</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-sm font-bold text-white pt-2 border-t border-slate-800">
+                    <span>Total Amount:</span>
+                    <span className="text-emerald-400 text-lg font-mono">${calculateFinalTotal()}</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleCheckout}
+                  className="w-full bg-gradient-to-r from-emerald-500 via-teal-500 to-indigo-600 hover:from-emerald-600 hover:to-indigo-700 text-white font-extrabold py-3.5 rounded-xl transition shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2"
+                >
+                  <CreditCard className="w-4 h-4" /> Complete Instant Booking
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {}
+      {confirmedBooking && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative text-center">
+            <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto mb-4 border border-emerald-500/40">
+              <CheckCircle2 className="w-8 h-8" />
+            </div>
+
+            <h3 className="text-2xl font-black text-white mb-1">Booking Confirmed!</h3>
+            <p className="text-xs text-slate-400 mb-6">Ref ID: <span className="text-indigo-400 font-mono font-bold">{confirmedBooking.bookingRef}</span></p>
+
+            {/* Simulated Digital Ticket Pass Card */}
+            <div className="bg-white text-slate-950 p-5 rounded-2xl text-left font-sans shadow-lg mb-6 relative overflow-hidden">
+              <div className="border-b border-dashed border-slate-300 pb-3 mb-3 flex justify-between items-center">
+                <div>
+                  <span className="text-[10px] font-bold uppercase text-indigo-600 tracking-wider">OmniTravel Digital Boarding Pass</span>
+                  <h4 className="text-sm font-black text-slate-900">Multi-Route E-Ticket</h4>
+                </div>
+                <QrCode className="w-10 h-10 text-slate-800" />
+              </div>
+
+              <div className="space-y-2 text-xs">
+                {confirmedBooking.items.map((item, idx) => (
+                  <div key={idx} className="flex justify-between border-b border-slate-100 pb-2">
+                    <div>
+                      <p className="font-bold text-slate-900">{item.type === 'package' ? item.title : `${item.from} → ${item.to}`}</p>
+                      <p className="text-[10px] text-slate-500">{item.type === 'package' ? item.destination : item.code} • Seat(s): {item.selectedSeats.join(', ')}</p>
+                    </div>
+                    <span className="font-mono font-bold">${item.totalItemPrice.toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-3 pt-2 border-t border-slate-200 flex justify-between items-center text-xs font-bold">
+                <span>Total Paid:</span>
+                <span className="text-emerald-600 text-sm font-mono">${confirmedBooking.totalAmount}</span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setConfirmedBooking(null)}
+              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition"
+            >
+              Done & Save Ticket Pass
+            </button>
+          </div>
+        </div>
+      )}
+
+      {}
+      <div className="fixed bottom-6 right-6 z-40">
+        {!isChatOpen ? (
+          <button
+            onClick={() => setIsChatOpen(true)}
+            className="bg-indigo-600 hover:bg-indigo-500 text-white p-3.5 rounded-full shadow-2xl flex items-center gap-2 transition hover:scale-105"
+          >
+            <MessageSquare className="w-5 h-5" />
+            <span className="text-xs font-bold hidden sm:inline">24/7 Fare Assistance</span>
+          </button>
+        ) : (
+          <div className="bg-slate-900 border border-slate-700 w-80 sm:w-96 rounded-2xl shadow-2xl flex flex-col h-96 overflow-hidden animate-in slide-in-from-bottom-5 duration-200">
+            {/* Chat Header */}
+            <div className="bg-slate-800 p-3.5 border-b border-slate-700 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-xs font-bold text-white">OmniTravel Assistant</span>
+              </div>
+              <button onClick={() => setIsChatOpen(false)} className="text-slate-400 hover:text-white">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Chat Messages */}
+            <div className="flex-1 p-3 overflow-y-auto space-y-2.5 text-xs">
+              {chatMessages.map((msg, i) => (
+                <div key={i} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[80%] p-2.5 rounded-xl ${msg.sender === 'user' ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-200 border border-slate-700'}`}>
+                    {msg.text}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Chat Input */}
+            <form onSubmit={handleSendMessage} className="p-2 border-t border-slate-800 flex gap-2 bg-slate-900">
+              <input
+                type="text"
+                placeholder="Ask about cheap tickets..."
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
+              />
+              <button type="submit" className="bg-indigo-600 text-white p-2 rounded-xl hover:bg-indigo-500">
+                <Send className="w-3.5 h-3.5" />
+              </button>
+            </form>
+          </div>
+        )}
+      </div>
+
+      {}
+      <footer className="bg-slate-950 border-t border-slate-800 py-10 mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div>
+            <div className="flex items-center gap-2 justify-center sm:justify-start mb-3">
+              <Compass className="w-6 h-6 text-indigo-400" />
+              <span className="text-lg font-black text-white">OmniTravel</span>
+            </div>
+            <p className="text-xs text-slate-400">
+              Your premier ultra-budget travel partner offering negligible price tickets across Bus, Train, Flight, and Vacation Packages.
+            </p>
+          </div>
+
+          <div>
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-3">Modes of Transit</h4>
+            <ul className="space-y-2 text-xs text-slate-400">
+              <li className="hover:text-indigo-400 cursor-pointer">Budget Flights</li>
+              <li className="hover:text-indigo-400 cursor-pointer">High-Speed Trains</li>
+              <li className="hover:text-indigo-400 cursor-pointer">Express AC Buses</li>
+              <li className="hover:text-indigo-400 cursor-pointer">Island & Mountain Tours</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-3">Customer Care</h4>
+            <ul className="space-y-2 text-xs text-slate-400">
+              <li className="hover:text-indigo-400 cursor-pointer">Instant Digital Refunds</li>
+              <li className="hover:text-indigo-400 cursor-pointer">Baggage Guidelines</li>
+              <li className="hover:text-indigo-400 cursor-pointer">Travel Insurance Claims</li>
+              <li className="hover:text-indigo-400 cursor-pointer">24/7 Live Support</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-3">Guaranteed Safety</h4>
+            <div className="flex items-center gap-2 text-xs text-emerald-400 bg-slate-900 border border-slate-800 p-3 rounded-xl">
+              <Shield className="w-5 h-5 flex-shrink-0" />
+              <span>100% Encrypted Payment & Guaranteed Low Fare Protection</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 mt-8 border-t border-slate-900 text-center text-xs text-slate-500">
+          © {new Date().getFullYear()} OmniTravel Technologies Inc. All rights reserved.
+        </div>
+      </footer>
+
+    </div>
+  );
+}
